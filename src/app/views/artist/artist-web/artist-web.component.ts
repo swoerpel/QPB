@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnInit, ViewContainerRef } from '@angular/core';
+import { FormControl } from '@angular/forms';
 
 import * as d3 from 'd3';
 
@@ -8,6 +9,10 @@ import * as d3 from 'd3';
   styleUrls: ['./artist-web.component.scss']
 })
 export class ArtistWebComponent implements OnInit,AfterViewInit {
+
+  public searchFormControl: FormControl = new FormControl('',{
+    updateOn: 'blur',
+  });
 
   private margin = 0.0;
 
@@ -89,7 +94,6 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
   }
   
   private maskNode(i,cx,cy,r) {
-    // const defs = this.svg.append('defs')
     this.defs.append('clipPath')
       .attr('id', `circle-clip-${i}`)
       .call(s => this.appendCircle(s,cx,cy,r))
@@ -99,7 +103,6 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
       .attr('y', cy-r)
       .attr('width', r*2 + 'px')
       .attr('height', r*2 + 'px')
-      // clip the image using id
       .attr('clip-path', `url(#circle-clip-${i})`)
   }
 

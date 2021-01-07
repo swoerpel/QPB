@@ -17,6 +17,8 @@ import { ArtistInfoComponent } from './views/artist/artist-info/artist-info.comp
 import { ArtistWebComponent } from './views/artist/artist-web/artist-web.component';
 import { PlaylistComponent } from './views/playlist/playlist.component';
 import { SongListItemComponent } from './components/song-list-item/song-list-item.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -32,6 +34,8 @@ import { SongListItemComponent } from './components/song-list-item/song-list-ite
   imports: [
     BrowserModule,
     AppRoutingModule,
+    ReactiveFormsModule,
+    HttpClientModule,
     StoreModule.forRoot({
       artist: artistReducer,
       playlist: playlistReducer,

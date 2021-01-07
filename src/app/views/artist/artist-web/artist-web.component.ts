@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit, ViewContainerRef } from '@angular/cor
 import { FormControl } from '@angular/forms';
 
 import * as d3 from 'd3';
+import { SpotifyApiService } from 'src/app/services/spotify-api.service';
 
 @Component({
   selector: 'app-artist-web',
@@ -37,6 +38,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
 
   constructor(
     private viewContainerRef: ViewContainerRef,
+    public spotifyApiService: SpotifyApiService,
   ) { }
 
   ngOnInit(): void {

@@ -1,0 +1,64 @@
+
+// like HTML selector only higher specificity
+// global parent element
+$color-accent: #1DB954;
+$color-dark: #121212;
+$color-medium-dark: #282828;
+$color-medium-light: #b3b3b3;
+$color-light: #ffffff;
+
+:root {
+    --color-accent: #1DB954;
+    --color-dark: #121212;
+    --color-medium-dark: #282828;
+    --color-medium-light: #b3b3b3;
+    --color-light: #ffffff;
+
+    --xs: 0.5rem;
+    --s: 1rem;
+    --m: 2rem;
+    --l: 4rem;
+    --xl: 8rem;
+}
+
+$bp-largest: 75em;     // 1200px
+$bp-large: 68.75em;    // 1100px
+$bp-medium: 56.25em;   // 900px
+$bp-small: 37.5em;     // 600px
+$bp-smallest: 31.25em; // 500px
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%; //1 rem = 10px; 10px/16px = 62.5%
+    @media only screen and (max-width: $bp-large) {
+        font-size: 50%;
+    }
+}
+
+body { 
+    line-height: 1.6;
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(
+        to bottom,
+        rgba($color-medium-dark,1),
+        rgba($color-dark,1),
+    );
+    // url('../assets/cover-image-medium-002.png');
+    height: 100vh;
+}
+
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -1,0 +1,24 @@
+.title-large{
+    letter-spacing: 1.25rem;
+    text-indent:12px;
+    font-size: var(--font-xxl);
+    font-weight: var(--font-weight-light);
+    @media only screen and (max-width: 600px) {
+        font-size: var(--font-xl);
+    }
+}
+
+.title-medium{
+    font-size: var(--font-l);
+    font-weight: var(--font-weight-light);
+    color: var(--color-primary-dark);
+    @media only screen and (max-width: 600px) {
+        font-size: var(--font-m);
+    }
+}
+
+.title-small{
+    font-size: var(--font-m);
+    font-weight: var(--font-weight-light);
+    color: var(--color-primary-dark);
+}

@@ -63,13 +63,24 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
 
   private drawNodes(): void {
     this.circles.forEach((d,i)=>{
+
+      let r = this.xScale(d.r);
       this.svg.append("ellipse")
         .attr("fill",'var(--color-medium-light)')
         .attr("cx", this.xScale(d.cx))
         .attr("cy", this.yScale(d.cy))
-        .attr("rx", this.xScale(d.r))
-        .attr("ry", this.xScale(d.r))
-    })
+        .attr("rx", r)
+        .attr("ry", r)
+      let cx = this.xScale(d.cx);// - this.xScale(r/2);
+      console.log("r",r)
+
+      // this.svg.append('image')
+      //   .attr('xlink:href', 'assets/circles-00.png')
+      //   .attr("clip-path",`circle(${this.xScale(d.r/2)})`)
+      //   .attr('width', this.xScale(this.minorRadius*2))
+      //   .attr('height', this.xScale(this.minorRadius*2))
+      //   // .attr("transform", `translate(${cx},${cx})`);
+      })
   }
 
 }

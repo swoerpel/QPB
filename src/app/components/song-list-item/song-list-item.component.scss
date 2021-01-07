@@ -1,0 +1,11 @@
+:host{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: var(--s);
+    border-top: 1px solid var(--color-medium);
+}
+
+.text{
+    font-size: var(--m);
+}

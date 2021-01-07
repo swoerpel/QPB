@@ -1,8 +1,12 @@
 <div class="songlists">
     <div class="songlists songlists__artist">
-        Artist Songs
+        <app-song-list-item *ngFor="let song of artistSongs"
+                            [song]="song">
+        </app-song-list-item>
     </div>
     <div class="songlists songlists__user">
-        User Songs
+        <app-song-list-item *ngFor="let song of userSongs"
+                            [song]="song">
+        </app-song-list-item>
     </div>
 </div>

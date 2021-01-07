@@ -15,7 +15,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
   private minorRadius = 0.1;
 
   private circles = [
-    {cx:  0.5, cy:  0.5, r: this.majorRadius, img: '../../../assets/circles-00.png'},
+    {cx:  0.5, cy:  0.5, r: this.majorRadius},
     {cx:  0.15, cy:  0.2, r: this.minorRadius},
     {cx:  0.85, cy:  0.2, r: this.minorRadius},
     {cx:  0.15, cy:  0.8, r: this.minorRadius},
@@ -23,10 +23,12 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
   ];
 
   private svg;
+  private defs;
   private width;
   private height;
   private xScale;
   private yScale;
+  
 
   constructor(
     private viewContainerRef: ViewContainerRef,
@@ -59,28 +61,46 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
       .attr("height", this.height + (this.margin * 2))
       .append("g")
       .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+    this.defs = this.svg.append('defs')
   }
 
   private drawNodes(): void {
-    this.circles.forEach((d,i)=>{
+    const circles = this.circles.map((d)=>({
+      cx: this.xScale(d.cx),
+      cy: this.yScale(d.cy),
+      r: this.xScale(d.r)
+    }))
+    circles.forEach((d,i)=>{
 
-      let r = this.xScale(d.r);
+    })
+    circles.forEach((d,i)=>{
       this.svg.append("ellipse")
+        .attr("cx", d.cx).attr("cy", d.cy).attr("rx", d.r).attr("ry", d.r)
         .attr("fill",'var(--color-medium-light)')
-        .attr("cx", this.xScale(d.cx))
-        .attr("cy", this.yScale(d.cy))
-        .attr("rx", r)
-        .attr("ry", r)
-      let cx = this.xScale(d.cx);// - this.xScale(r/2);
-      console.log("r",r)
+      this.maskNode(i,d.cx,d.cy,d.r)
+    })
+  }
 
-      // this.svg.append('image')
-      //   .attr('xlink:href', 'assets/circles-00.png')
-      //   .attr("clip-path",`circle(${this.xScale(d.r/2)})`)
-      //   .attr('width', this.xScale(this.minorRadius*2))
-      //   .attr('height', this.xScale(this.minorRadius*2))
-      //   // .attr("transform", `translate(${cx},${cx})`);
-      })
+  private appendCircle (selection, cx,cy,r) {
+    selection.append('circle')
+      .attr('cx', cx)
+      .attr('cy', cy)
+      .attr('r', r)
+  }
+  
+  private maskNode(i,cx,cy,r) {
+    // const defs = this.svg.append('defs')
+    this.defs.append('clipPath')
+      .attr('id', `circle-clip-${i}`)
+      .call(s => this.appendCircle(s,cx,cy,r))
+    this.svg.append('image')
+      .attr('xlink:href', 'assets/circles-00.png')
+      .attr('x', cx-r)
+      .attr('y', cy-r)
+      .attr('width', r*2 + 'px')
+      .attr('height', r*2 + 'px')
+      // clip the image using id
+      .attr('clip-path', `url(#circle-clip-${i})`)
   }
 
 }

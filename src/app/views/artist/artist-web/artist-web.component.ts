@@ -15,7 +15,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
   private minorRadius = 0.1;
 
   private circles = [
-    {cx:  0.5, cy:  0.5, r: this.majorRadius},
+    {cx:  0.5, cy:  0.5, r: this.majorRadius, img: '../../../assets/circles-00.png'},
     {cx:  0.15, cy:  0.2, r: this.minorRadius},
     {cx:  0.85, cy:  0.2, r: this.minorRadius},
     {cx:  0.15, cy:  0.8, r: this.minorRadius},
@@ -49,7 +49,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
       .range([this.height, 0]);
 
     this.createSvg();
-    this.drawNodes(this.circles);
+    this.drawNodes();
   }
 
   private createSvg(): void {
@@ -61,16 +61,15 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
       .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
   }
 
-  private drawNodes(data: any[]): void {
-    this.svg.selectAll("nodes")
-      .data(data)
-      .enter()
-      .append("ellipse")
-      .attr("fill",'var(--color-medium-light)')
-      .attr("cx", d => this.xScale(d.cx))
-      .attr("cy", d => this.yScale(d.cy))
-      .attr("rx", d => this.xScale(d.r))
-      .attr("ry", d => this.xScale(d.r));
+  private drawNodes(): void {
+    this.circles.forEach((d,i)=>{
+      this.svg.append("ellipse")
+        .attr("fill",'var(--color-medium-light)')
+        .attr("cx", this.xScale(d.cx))
+        .attr("cy", this.yScale(d.cy))
+        .attr("rx", this.xScale(d.r))
+        .attr("ry", this.xScale(d.r))
+    })
   }
 
 }

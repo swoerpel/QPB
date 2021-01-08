@@ -5,6 +5,7 @@ import { EMPTY, Observable, of } from 'rxjs';
 import { Artist, ArtistRobust } from '../models/artist.model';
 import { Track } from '../models/track.model';
 import { environment } from '../../environments/environment';
+import { msToMin } from '../shared/helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -79,9 +80,11 @@ export class SpotifyApiService {
     return this.http.get(url,httpOptions).pipe(
       map((res: any) => res.tracks),
       map((tracks: any)=>{
+        console.log('tracks',tracks)
         return tracks.map((t)=>({
           id: t.id,
           name: t.name,
+          duration_ms: t.duration_ms,
           popularity: t.popularity,
           albumImages: [...t.album.images]
         }))

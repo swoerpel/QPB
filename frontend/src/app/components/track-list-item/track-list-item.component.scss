@@ -1,11 +1,39 @@
 :host{
+    height: 8rem;
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: var(--s);
-    border-top: 1px solid var(--color-medium);
+    outline: 1px solid var(--color-medium);
+}
+
+.track{
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__image{
+        flex: 1;
+    }
+    &__name{
+        flex: 4;
+        justify-content: flex-start;
+        margin-left: var(--s);
+    }
+    &__duration{
+        flex: 1;
+    }
+    &__popularity{
+        flex: 1;
+    }
+    &__options{
+        flex: 2;
+    }
 }
 
 .text{
     font-size: var(--m);
+}
+
+.album-image{
+    height: 100%;
 }

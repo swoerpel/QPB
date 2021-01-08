@@ -5,8 +5,8 @@
     flex-direction: column;
 }
 
-.songlists{
-    height: 100%;
+.tracklists{
+    // height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -17,12 +17,18 @@
     
     &__artist{
         flex: 1;
-        overflow-y: auto;
+        // height: auto;
+        // overflow-y: auto;
     }
 
     &__user{
         flex: 1;
+        background-color:lightblue;
         border-top: 1px solid var(--color-medium-light);
     }
 
+}
+
+track-list-item{
+    margin:0;
 }

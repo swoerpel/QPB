@@ -61,11 +61,6 @@ export const artistReducer = createReducer<ArtistState>(
             error: action.err,
         }
     }),
-    on(ArtistActions.GetRelatedArtists, (state, action): ArtistState => {
-        return {
-            ...state,
-        }
-    }),
     on(ArtistActions.GetRelatedArtistsSuccess, (state, action): ArtistState => {
         return {
             ...state,
@@ -78,5 +73,5 @@ export const artistReducer = createReducer<ArtistState>(
             error: action.err,
         }
     }),
-    
+
 );

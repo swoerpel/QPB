@@ -6,11 +6,11 @@ import * as d3 from 'd3';
 import { Observable, Subject } from 'rxjs';
 import { filter, map, takeUntil, tap } from 'rxjs/operators';
 import { Artist, ArtistRobust } from 'src/app/models/artist.model';
-import { Circle } from 'src/app/models/circle.model';
 import { ArtistActions } from 'src/state/artist/actions';
 import { ArtistState } from 'src/state/artist/artist.reducer';
 import { ArtistSelectors } from 'src/state/artist/selectors';
 import { head } from 'lodash';
+import { Circle } from 'src/app/models/geometry.model';
 
 @Component({
   selector: 'app-artist-web',
@@ -57,7 +57,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.setupSVGArea()
+    this.setupSVG()
     this.autoCompleteArtists$ = this.artistStore.select(ArtistSelectors.GetAutoCompleteArtists)
     this.searchFormControl.valueChanges.pipe(
       tap((searchInput: any) => {
@@ -102,7 +102,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.unsubscribe.complete();
   }
 
-  private setupSVGArea(){
+  private setupSVG(){
     let container = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     this.width = container.width - (this.margin * container.width * 2);
     this.height = container.height - (this.margin * container.height * 2);
@@ -112,10 +112,6 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.yScale = d3.scaleLinear()
       .domain([0,1])
       .range([this.height, 0]);
-    this.createSvg();
-  }
-
-  private createSvg(): void {
     this.svg = d3.select("figure#nodes")
       .append("svg")
       .attr("width", this.width + (this.margin * 2))
@@ -125,11 +121,9 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.defs = this.svg.append('defs')
   }
 
-
   private drawSelectedArtistImage(url: string){
     this.drawClippedImage(this.scaleCircle(this.selectedCircle),url);
   }
-  
 
   private scaleCircle = (c: Circle): Circle => ({
     cx: this.xScale(c.cx),

@@ -24,6 +24,7 @@ import { environment } from '../environments/environment';
 import { MaterialModule } from './material.module';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TrackListItemComponent } from './components/track-list-item/track-list-item.component';
+import { PopularityIndicatorComponent } from './components/popularity-indicator/popularity-indicator.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -33,6 +34,7 @@ import { TrackListItemComponent } from './components/track-list-item/track-list-
     ArtistWebComponent,
     PlaylistComponent,
     TrackListItemComponent,
+    PopularityIndicatorComponent,
   ],
   imports: [
     BrowserModule,

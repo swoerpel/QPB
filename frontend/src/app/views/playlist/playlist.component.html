@@ -1,12 +1,12 @@
-<div class="songlists">
-    <div class="songlists songlists__artist">
+<div class="tracklists">
+    <div class="tracklists tracklists__artist">
         <track-list-item *ngFor="let track of (selectedArtistTracks$ | async)"
                             [track]="track">
         </track-list-item>
     </div>
-    <div class="songlists songlists__user">
-        <!-- <track-list-item *ngFor="let song of userSongs"
-                            [song]="song">
-        </track-list-item> -->
-    </div>
+    <!-- <div class="tracklists tracklists__user">
+        <track-list-item *ngFor="let track of (selectedArtistTracks$ | async)"
+                            [track]="track">
+        </track-list-item>
+    </div> -->
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Track } from 'src/app/models/track.model';
 import { PlaylistState } from 'src/state/playlist/Playlist.reducer';
 import { PlaylistSelectors } from 'src/state/playlist/selectors';
@@ -13,14 +14,20 @@ import { PlaylistSelectors } from 'src/state/playlist/selectors';
 export class PlaylistComponent implements OnInit {
 
 
-  public selectedArtistTracks$: Observable<Track>;
+  public selectedArtistTracks$: Observable<Track[]>;
 
   constructor(
     private playlistStore: Store<PlaylistState>
   ) { }
 
   ngOnInit(): void {
-    this.selectedArtistTracks$ = this.playlistStore.select(PlaylistSelectors.GetSelectedArtistTracks)
+    this.selectedArtistTracks$ = this.playlistStore.select(PlaylistSelectors.GetSelectedArtistTracks).pipe(
+      map((tracks: Track[])=>{
+        console.log("tracks.length")
+        return tracks.filter((_,i)=> i<8)
+      }),
+      tap((tracks)=>console.log(tracks.length))
+    )
   }
 
 }

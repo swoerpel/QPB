@@ -1,1 +1,10 @@
-<div class="text">{{track.name}}</div>
+<div class="track track__image">
+    <img [src]="albumImageUrl" class="album-image">
+</div>
+<div class="track track__name">{{track.name}}</div>
+<div class="track track__duration">{{msToMin(track.duration_ms)}}</div>
+<div class="track track__popularity">
+    <popularity-indicator [popularity]="track.popularity"></popularity-indicator>
+</div>
+<div class="track track__options">options</div>
+

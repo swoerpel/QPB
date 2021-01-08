@@ -19,8 +19,11 @@ import { PlaylistComponent } from './views/playlist/playlist.component';
 import { SongListItemComponent } from './components/song-list-item/song-list-item.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-
-
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireModule } from '@angular/fire';
+import { environment } from '../environments/environment';
+import { MaterialModule } from './material.module';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,6 +39,9 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
+    MaterialModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
     StoreModule.forRoot({
       artist: artistReducer,
       playlist: playlistReducer,
@@ -50,6 +56,7 @@ import { HttpClientModule } from '@angular/common/http';
       name: 'ATTC',
       maxAge: 25,
     }),
+    NoopAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,19 +1,27 @@
-import { AfterViewInit, Component, OnInit, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewContainerRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Store } from '@ngrx/store';
 
 import * as d3 from 'd3';
-import { SpotifyApiService } from 'src/app/services/spotify-api.service';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
+import { Artist } from 'src/app/models/artist.model';
+import { ArtistActions } from 'src/state/artist/actions';
+import { ArtistState } from 'src/state/artist/artist.reducer';
+import { ArtistSelectors } from 'src/state/artist/selectors';
 
 @Component({
   selector: 'app-artist-web',
   templateUrl: './artist-web.component.html',
   styleUrls: ['./artist-web.component.scss']
 })
-export class ArtistWebComponent implements OnInit,AfterViewInit {
+export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
 
-  public searchFormControl: FormControl = new FormControl('',{
-    updateOn: 'blur',
-  });
+  public stuff = ['this','that','those']
+
+  public searchFormControl: FormControl = new FormControl('');
+
+  public autoCompleteArtists$: Observable<Artist[]>;
 
   private margin = 0.0;
 
@@ -35,30 +43,45 @@ export class ArtistWebComponent implements OnInit,AfterViewInit {
   private xScale;
   private yScale;
   
+  private unsubscribe: Subject<void> = new Subject();
 
   constructor(
     private viewContainerRef: ViewContainerRef,
-    public spotifyApiService: SpotifyApiService,
+    private artistStore: Store<ArtistState>,
   ) { }
 
   ngOnInit(): void {
-
+    this.autoCompleteArtists$ = this.artistStore.select(ArtistSelectors.GetAutoCompleteArtists)
+    this.searchFormControl.valueChanges.pipe(
+      tap((searchInput: any) => {
+        if(!!searchInput?.id){
+          this.artistStore.dispatch(ArtistActions.SetSelectedArtist({artist: searchInput}));
+          this.searchFormControl.patchValue(searchInput.name, {emitEvent: false})
+        }else{
+          this.artistStore.dispatch(ArtistActions.SearchArtist({searchText: searchInput}));
+        }
+      }),
+      takeUntil(this.unsubscribe)
+    ).subscribe()
   }
 
   ngAfterViewInit(){
     let container = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     this.width = container.width - (this.margin * container.width * 2);
     this.height = container.height - (this.margin * container.height * 2);
-
     this.xScale = d3.scaleLinear()
       .range([0, this.width])
       .domain([0,1])
     this.yScale = d3.scaleLinear()
       .domain([0,1])
       .range([this.height, 0]);
-
     this.createSvg();
     this.drawNodes();
+  }
+
+  ngOnDestroy(){
+    this.unsubscribe.next();
+    this.unsubscribe.complete();
   }
 
   private createSvg(): void {

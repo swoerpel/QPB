@@ -1,0 +1,14 @@
+<div class="artist-search">
+    <input type="text" 
+           placeholder="search artist"
+           [formControl]="searchFormControl"
+           [matAutocomplete]="auto"
+           class="search-input">
+    <mat-autocomplete #auto="matAutocomplete">
+    <mat-option *ngFor="let artist of autoCompleteArtists$ | async" [value]="artist">
+        {{artist.name}}
+    </mat-option>
+    </mat-autocomplete>
+</div>
+
+<figure id="nodes"></figure>

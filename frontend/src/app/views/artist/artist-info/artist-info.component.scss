@@ -6,3 +6,27 @@
     color: var(--color-light);
     font-size: var(--m);
 }
+
+.col{
+    display: flex;
+    &__image{
+        flex: 1;
+    }
+
+    &__info{
+        flex: 3;
+        margin-left: var(--s);
+        flex-direction: column;
+        &--name{
+            font-size: var(--m);
+            font-weight: 300;
+        }
+        &--followers{
+            font-size: var(--s);
+            font-weight: 500;
+        }
+    }
+    &__albums{
+        flex: 2;
+    }
+}

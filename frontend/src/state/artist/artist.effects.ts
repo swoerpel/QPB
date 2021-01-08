@@ -3,8 +3,9 @@ import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects'
 import { Store } from "@ngrx/store";
 import { Observable, of } from 'rxjs';
 import { catchError, exhaustMap, map, switchMap, withLatestFrom } from "rxjs/operators";
-import { Artist } from "src/app/models/artist.model";
+import { Artist, ArtistRobust } from "src/app/models/artist.model";
 import { SpotifyApiService } from "src/app/services/spotify-api.service";
+import { PlaylistActions } from "../playlist/actions";
 import { ArtistActions } from "./actions";
 import { ArtistState } from "./artist.reducer";
 import { ArtistSelectors } from "./selectors";
@@ -32,18 +33,41 @@ export class ArtistEffects {
         )   
     });
 
-    searchArtist$ = createEffect((): any => {
+    searchArtists$ = createEffect((): any => {
         return this.actions$.pipe(
             ofType(ArtistActions.SearchArtist),
             withLatestFrom(this.artistStore.select(ArtistSelectors.GetAccessToken)),
             switchMap(([{searchText}, accessToken]: [any,string]) => 
-                this.spotifyApiService.searchArtist(searchText,accessToken).pipe(
+                this.spotifyApiService.searchArtists(searchText,accessToken).pipe(
                     map((artists: Artist[])=> ArtistActions.SearchArtistSuccess({artists})),
                         catchError((err)=>of(ArtistActions.SearchArtistFailed({err})))
                     )
                 )
             )   
     });
+
+    searchArtist$ = createEffect((): any => {
+        return this.actions$.pipe(
+            ofType(ArtistActions.SetSelectedArtist),
+            withLatestFrom(this.artistStore.select(ArtistSelectors.GetAccessToken)),
+            switchMap(([{artist}, accessToken]: [any,string]) => {
+                return this.spotifyApiService.getArtist(artist.id,accessToken).pipe(
+                    map((artist: ArtistRobust)=> ArtistActions.SetSelectedArtistSuccess({artist})),
+                        catchError((err)=>of(ArtistActions.SetSelectedArtistFailed({err})))
+                    )
+            })
+        );
+    });
+
+    populateSelectedArtistSongs$ = createEffect((): any => {
+        return this.actions$.pipe(
+            ofType(ArtistActions.SetSelectedArtistSuccess),
+            map(() => PlaylistActions.PopulateSelectedArtistSongs())
+        );
+    });
+
+
+    
 
 };
 

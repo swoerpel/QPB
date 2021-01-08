@@ -1,11 +1,11 @@
 import { createReducer, on } from "@ngrx/store";
-import { Artist } from "src/app/models/artist.model";
+import { Artist, ArtistRobust } from "src/app/models/artist.model";
 import { ArtistActions } from "./actions";
 
 export interface ArtistState {
     accessToken: string;
     autoCompleteArtists: Artist[];
-    selectedArtist: Artist;
+    selectedArtist: ArtistRobust;
     error: any;
 }
 
@@ -45,11 +45,18 @@ export const artistReducer = createReducer<ArtistState>(
             error: action.err
         }
     }),
-    on(ArtistActions.SetSelectedArtist, (state, action): ArtistState => {
+    on(ArtistActions.SetSelectedArtistSuccess, (state, action): ArtistState => {
         return {
             ...state,
-            selectedArtist: state.autoCompleteArtists.find((a: Artist) => a.id === action.artist.id),
+            selectedArtist: action.artist,
             autoCompleteArtists: [],
+            error: null,
+        }
+    }),
+    on(ArtistActions.SetSelectedArtistFailed, (state, action): ArtistState => {
+        return {
+            ...state,
+            error: action.err,
         }
     }),
 );

@@ -4,11 +4,13 @@ import { Store } from '@ngrx/store';
 
 import * as d3 from 'd3';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { Artist } from 'src/app/models/artist.model';
+import { filter, map, takeUntil, tap } from 'rxjs/operators';
+import { Artist, ArtistRobust } from 'src/app/models/artist.model';
+import { Circle } from 'src/app/models/circle.model';
 import { ArtistActions } from 'src/state/artist/actions';
 import { ArtistState } from 'src/state/artist/artist.reducer';
 import { ArtistSelectors } from 'src/state/artist/selectors';
+import { head } from 'lodash';
 
 @Component({
   selector: 'app-artist-web',
@@ -22,14 +24,16 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
   public searchFormControl: FormControl = new FormControl('');
 
   public autoCompleteArtists$: Observable<Artist[]>;
+  public selectedArtist$: Observable<ArtistRobust>;
 
   private margin = 0.0;
 
   private majorRadius = 0.15;
   private minorRadius = 0.1;
 
-  private circles = [
-    {cx:  0.5, cy:  0.5, r: this.majorRadius},
+  private selectedCircle: Circle = {cx:  0.5, cy:  0.5, r: this.majorRadius}
+
+  private neighborCircles: Circle[] = [
     {cx:  0.15, cy:  0.2, r: this.minorRadius},
     {cx:  0.85, cy:  0.2, r: this.minorRadius},
     {cx:  0.15, cy:  0.8, r: this.minorRadius},
@@ -52,6 +56,16 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.autoCompleteArtists$ = this.artistStore.select(ArtistSelectors.GetAutoCompleteArtists)
+    this.artistStore.select(ArtistSelectors.GetSelectedArtist).pipe(
+      filter(a=>!!a),
+      map(a=>a.images),
+      map(head),
+      map((a:any)=>a.url),
+      map(url=>this.drawSelectedArtistImage(url)),
+      takeUntil(this.unsubscribe)
+    ).subscribe();
+
+
     this.searchFormControl.valueChanges.pipe(
       tap((searchInput: any) => {
         if(!!searchInput?.id){
@@ -76,12 +90,49 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       .domain([0,1])
       .range([this.height, 0]);
     this.createSvg();
-    this.drawNodes();
+    
+    this.drawNeighborCircles(this.neighborCircles);
   }
 
   ngOnDestroy(){
     this.unsubscribe.next();
     this.unsubscribe.complete();
+  }
+
+  private drawSelectedArtistImage(url: string){
+    this.drawClippedImage(this.scaleCircle(this.selectedCircle),url);
+  }
+
+  private scaleCircle = (c: Circle): Circle => ({
+    cx: this.xScale(c.cx),
+    cy: this.yScale(c.cy),
+    r: this.xScale(c.r),
+  })
+
+  private drawClippedImage = (c: Circle,url: string = 'assets/circles-00.png') => {
+    this.svg.append("ellipse")
+      .attr("cx", c.cx)
+      .attr("cy", c.cy)
+      .attr("rx", c.r)
+      .attr("ry", c.r)
+      .attr('stroke','black')
+      .attr('stroke-width','10px')
+      .attr("fill",'var(--color-medium-light)')
+    this.defs.append('clipPath')
+      .attr('id', `selected-circle-clip`)
+      .call(s => {
+        s.append('circle')
+          .attr('cx', c.cx)
+          .attr('cy', c.cy)
+          .attr('r', c.r)
+      })
+    this.svg.append('image')
+      .attr('xlink:href', url)
+      .attr('x', c.cx - c.r)
+      .attr('y', c.cy - c.r)
+      .attr('width', c.r * 2 + 'px')
+      .attr('height', c.r * 2 + 'px')
+      .attr('clip-path', `url(#selected-circle-clip)`)
   }
 
   private createSvg(): void {
@@ -94,41 +145,33 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.defs = this.svg.append('defs')
   }
 
-  private drawNodes(): void {
-    const circles = this.circles.map((d)=>({
-      cx: this.xScale(d.cx),
-      cy: this.yScale(d.cy),
-      r: this.xScale(d.r)
-    }))
-    circles.forEach((d,i)=>{
-
-    })
-    circles.forEach((d,i)=>{
+  private drawNeighborCircles(circles: Circle[], urls: string[] = ['assets/circles-00.png']): void {
+    circles.map(this.scaleCircle).forEach((d,i)=>{
       this.svg.append("ellipse")
-        .attr("cx", d.cx).attr("cy", d.cy).attr("rx", d.r).attr("ry", d.r)
+        .attr("cx", d.cx)
+        .attr("cy", d.cy)
+        .attr("rx", d.r)
+        .attr("ry", d.r)
         .attr("fill",'var(--color-medium-light)')
-      this.maskNode(i,d.cx,d.cy,d.r)
+        .attr('stroke','black')
+        .attr('stroke-width','20px')
+      this.defs.append('clipPath')
+        .attr('id', `circle-clip-${i}`)
+        .call(s => {
+          s.append('circle')
+            .attr('cx', d.cx)
+            .attr('cy', d.cy)
+            .attr('r', d.r)
+        })
+      this.svg.append('image')
+        .attr('xlink:href', (_,i)=> urls[i % urls.length])
+        .attr('x', d.cx - d.r)
+        .attr('y', d.cy - d.r)
+        .attr('width', d.r * 2 + 'px')
+        .attr('height', d.r * 2 + 'px')
+        .attr('clip-path', `url(#circle-clip-${i})`)
     })
   }
 
-  private appendCircle (selection, cx,cy,r) {
-    selection.append('circle')
-      .attr('cx', cx)
-      .attr('cy', cy)
-      .attr('r', r)
-  }
-  
-  private maskNode(i,cx,cy,r) {
-    this.defs.append('clipPath')
-      .attr('id', `circle-clip-${i}`)
-      .call(s => this.appendCircle(s,cx,cy,r))
-    this.svg.append('image')
-      .attr('xlink:href', 'assets/circles-00.png')
-      .attr('x', cx-r)
-      .attr('y', cy-r)
-      .attr('width', r*2 + 'px')
-      .attr('height', r*2 + 'px')
-      .attr('clip-path', `url(#circle-clip-${i})`)
-  }
 
 }

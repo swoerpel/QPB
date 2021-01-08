@@ -1,6 +1,14 @@
 import { Injectable } from "@angular/core";
-import { Actions, createEffect } from '@ngrx/effects';
-import { Observable } from 'rxjs';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from "@ngrx/store";
+import { Observable, of } from 'rxjs';
+import { map, switchMap, withLatestFrom } from "rxjs/operators";
+import { Track } from "src/app/models/track.model";
+import { SpotifyApiService } from "src/app/services/spotify-api.service";
+import { ArtistActions } from "../artist/actions";
+import { ArtistState } from "../artist/artist.reducer";
+import { ArtistSelectors } from "../artist/selectors";
+import { PlaylistActions } from "./actions";
 
 @Injectable({
     providedIn: 'root'
@@ -8,28 +16,27 @@ import { Observable } from 'rxjs';
 export class PlaylistEffects {
     constructor( 
         private actions$: Actions,
+        public spotifyApiService: SpotifyApiService,
+        private artistStore:  Store<ArtistState>,
     ){ 
  
     }
 
-    // defaultEffect$ = createEffect((): any => {
-        // return this.actions$.pipe(
-        //     ofType(ExplicitMapActions.UpdateSelectedMapBySearch),
-        //     switchMap(({address,lat,lng}) => [
-        //         ExplicitMapActions.SetSelectedMapLocation({
-        //             location: {
-        //                 lat,
-        //                 lng,
-        //                 bounds: null,
-        //                 zoom: DEFAULT_MAP_ZOOM,
-        //             }
-        //         }),
-        //         ExplicitMapActions.SetSelectedMapTitleText({
-        //             titleText: address,
-        //         }),
-        //     ])
-        // )   
-    // });
+    populateSelectedArtistSongs$ = createEffect((): any => {
+        return this.actions$.pipe(
+            ofType(PlaylistActions.PopulateSelectedArtistSongs),
+            withLatestFrom(
+                this.artistStore.select(ArtistSelectors.GetAccessToken),
+                this.artistStore.select(ArtistSelectors.GetSelectedArtistId),
+            ),
+            switchMap(([_,accessToken,artistId]) => {
+                // return of(null);
+                return this.spotifyApiService.getTracksByArtist(artistId,accessToken).pipe(
+                    map((tracks: Track[]) => PlaylistActions.PopulateSelectedArtistSongsSuccess({tracks})),
+                )
+            })  
+        )   
+    });
 
 };
 

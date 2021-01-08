@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
 import { EMPTY, Observable, of } from 'rxjs';
-import { Artist } from '../models/artist.model';
+import { Artist, ArtistRobust } from '../models/artist.model';
+import { Track } from '../models/track.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +25,6 @@ export class SpotifyApiService {
     private http: HttpClient,
   ) { }
 
-
   public authorize():Observable<string>{
     let params = new HttpParams({fromObject: {
       client_id: this.client_id,
@@ -41,17 +41,17 @@ export class SpotifyApiService {
     )
   }
 
-  public searchArtist(
+  public searchArtists(
     searchText: string, 
     accessToken: string, 
     type: string = 'artist', 
     limit: number = 5
   ): Observable<Artist[]> {
-    const searchUrl = `https://api.spotify.com/v1/search?query=${searchText}&offset=0&limit=${limit}&type=${type}&market=US`;
+    const url = `https://api.spotify.com/v1/search?query=${searchText}&offset=0&limit=${limit}&type=${type}&market=US`;
     let httpOptions = {
       headers: new HttpHeaders({'Authorization': accessToken}),
     };
-    return this.http.get(searchUrl,httpOptions).pipe(
+    return this.http.get(url,httpOptions).pipe(
       map((res: any) => res.artists.items),
       map((artistsRobust: any[])=>{
         return artistsRobust.map((artistRobust) => ({
@@ -59,6 +59,51 @@ export class SpotifyApiService {
           name: artistRobust.name
         }))
       })
+    );
+  }
+
+  public getArtist(
+    artistId: string, 
+    accessToken: string, 
+  ): Observable<ArtistRobust> {
+    const url = `https://api.spotify.com/v1/artists/${artistId}`
+    let httpOptions = {
+      headers: new HttpHeaders({'Authorization': accessToken}),
+    };
+    return this.http.get(url,httpOptions).pipe(
+      map((artist: any)=>{
+        let artistRobust: ArtistRobust = {
+          id: artist.id,
+          name: artist.name,
+          popularity: artist.popularity,
+          followers: artist.followers.total,
+          images: [...artist.images],
+          genres: [...artist.genres],
+        };
+        return artistRobust;
+      })
+    );
+  }
+  
+  public getTracksByArtist(
+    artistId: string, 
+    accessToken: string, 
+  ): Observable<Track[]> {
+    const url = `	https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`
+    let httpOptions = {
+      headers: new HttpHeaders({'Authorization': accessToken}),
+    };
+    return this.http.get(url,httpOptions).pipe(
+      map((res: any) => res.tracks),
+      map((tracks: any)=>{
+        return tracks.map((t)=>({
+          id: t.id,
+          name: t.name,
+          popularity: t.popularity,
+          albumImages: [...t.album.images]
+        }))
+      }),
+      catchError((err)=> {return err;})
     );
   }
 }

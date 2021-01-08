@@ -1,1 +1,16 @@
-Artist Info
+<ng-container *ngIf="(artist$ | async) as artist">
+    <div class="col col__image">
+        <img [src]="artist.images[0].url" width="100%" height="100%">
+    </div>
+    <div class="col col__info">
+        <div class="col col__info col__info--name">
+            {{artist.name}}
+        </div>
+        <!-- <div class="col col__info col__info--followers">
+            followers: {{artist.followers}}
+        </div> -->
+    </div>
+    <div class="col col__albums">
+        albums
+    </div>
+</ng-container>

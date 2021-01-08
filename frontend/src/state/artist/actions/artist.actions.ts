@@ -1,5 +1,5 @@
 import {createAction, props} from '@ngrx/store';
-import { Artist } from 'src/app/models/artist.model';
+import { Artist, ArtistRobust } from 'src/app/models/artist.model';
 
 export const AuthorizeSuccessful = createAction(
     '[Spotify API] Authorize Successful',
@@ -29,5 +29,13 @@ export const SearchArtistFailed = createAction(
 export const SetSelectedArtist = createAction(
     '[Spotify API] Set Selected Artist',
     props<{artist: Artist}>()
+)
+export const SetSelectedArtistSuccess = createAction(
+    '[Spotify API] Set Selected Artist Success',
+    props<{artist: ArtistRobust}>()
+)
+export const SetSelectedArtistFailed = createAction(
+    '[Spotify API] Set Selected Artist Failed',
+    props<{err: any}>()
 )
 

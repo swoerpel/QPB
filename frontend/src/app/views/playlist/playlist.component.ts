@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Song } from 'src/app/models/song.model';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { Track } from 'src/app/models/track.model';
+import { PlaylistState } from 'src/state/playlist/Playlist.reducer';
+import { PlaylistSelectors } from 'src/state/playlist/selectors';
 
 @Component({
   selector: 'app-playlist',
@@ -8,35 +12,15 @@ import { Song } from 'src/app/models/song.model';
 })
 export class PlaylistComponent implements OnInit {
 
-  public artistSongs: Song[] = [
-    {
-      name: 'song a',
-      artist: 'chet',
-    },
-    {
-      name: 'song b',
-      artist: 'dreyfus',
-    },
-    {
-      name: 'song c',
-      artist: 'tomas',
-    },
-  ]
 
-  public userSongs: Song[] = [
-    {
-      name: 'song 1',
-      artist: 'chet',
-    },
-    {
-      name: 'song 2',
-      artist: 'dreyfus',
-    },
-  ]
+  public selectedArtistTracks$: Observable<Track>;
 
-  constructor() { }
+  constructor(
+    private playlistStore: Store<PlaylistState>
+  ) { }
 
   ngOnInit(): void {
+    this.selectedArtistTracks$ = this.playlistStore.select(PlaylistSelectors.GetSelectedArtistTracks)
   }
 
 }

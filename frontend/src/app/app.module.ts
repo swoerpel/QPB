@@ -16,7 +16,6 @@ import { ArtistComponent } from './views/artist/artist.component';
 import { ArtistInfoComponent } from './views/artist/artist-info/artist-info.component';
 import { ArtistWebComponent } from './views/artist/artist-web/artist-web.component';
 import { PlaylistComponent } from './views/playlist/playlist.component';
-import { SongListItemComponent } from './components/song-list-item/song-list-item.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
@@ -24,6 +23,7 @@ import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
 import { MaterialModule } from './material.module';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { TrackListItemComponent } from './components/track-list-item/track-list-item.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,7 +32,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
     ArtistInfoComponent,
     ArtistWebComponent,
     PlaylistComponent,
-    SongListItemComponent,
+    TrackListItemComponent,
   ],
   imports: [
     BrowserModule,

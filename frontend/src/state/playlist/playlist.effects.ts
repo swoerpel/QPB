@@ -30,7 +30,6 @@ export class PlaylistEffects {
                 this.artistStore.select(ArtistSelectors.GetSelectedArtistId),
             ),
             switchMap(([_,accessToken,artistId]) => {
-                // return of(null);
                 return this.spotifyApiService.getTracksByArtist(artistId,accessToken).pipe(
                     map((tracks: Track[]) => PlaylistActions.PopulateSelectedArtistSongsSuccess({tracks})),
                 )

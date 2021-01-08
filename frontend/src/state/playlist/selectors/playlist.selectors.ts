@@ -3,7 +3,7 @@ import { PlaylistState} from '../Playlist.reducer';
 
 const playlistFeatureState = createFeatureSelector<PlaylistState>('playlist');
 
-export const Default = createSelector(
+export const GetSelectedArtistTracks = createSelector(
     playlistFeatureState,
-    (state: PlaylistState): any => null
+    (state: PlaylistState): any => state.artistTracks
 )

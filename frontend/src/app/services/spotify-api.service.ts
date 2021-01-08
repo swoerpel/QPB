@@ -4,31 +4,24 @@ import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
 import { EMPTY, Observable, of } from 'rxjs';
 import { Artist, ArtistRobust } from '../models/artist.model';
 import { Track } from '../models/track.model';
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class SpotifyApiService {
 
-  private authURL: string = 'https://accounts.spotify.com/authorize';
-
-  private baseURL: string = 'https://api.spotify.com';
-
-  private client_id = 'b19a7584004e4484bd36d5d7aca9eae5';
-  private client_secret = 'aa565a5a7faa47ba8f111ff21fd7ea39';
-
-  private redirect_uri = 'http://localhost:4200/'
-
   private token_url = 'https://accounts.spotify.com/api/token';
+  private artist_base_url = 'https://api.spotify.com/v1/artists/'
 
-  private searchUrl: string;// = 'https://api.spotify.com/v1/search';
   constructor(
     private http: HttpClient,
   ) { }
 
   public authorize():Observable<string>{
     let params = new HttpParams({fromObject: {
-      client_id: this.client_id,
-      client_secret: this.client_secret,
+      client_id: environment.client_id,
+      client_secret: environment.client_secret,
       grant_type: 'client_credentials',
     }});
     let httpOptions = {
@@ -66,7 +59,7 @@ export class SpotifyApiService {
     artistId: string, 
     accessToken: string, 
   ): Observable<ArtistRobust> {
-    const url = `https://api.spotify.com/v1/artists/${artistId}`
+    const url = `${this.artist_base_url}${artistId}`
     let httpOptions = {
       headers: new HttpHeaders({'Authorization': accessToken}),
     };
@@ -89,7 +82,7 @@ export class SpotifyApiService {
     artistId: string, 
     accessToken: string, 
   ): Observable<Track[]> {
-    const url = `	https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`
+    const url = `${this.artist_base_url}${artistId}/top-tracks?market=US`
     let httpOptions = {
       headers: new HttpHeaders({'Authorization': accessToken}),
     };

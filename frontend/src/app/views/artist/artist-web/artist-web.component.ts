@@ -31,6 +31,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
 
   private majorRadius = 0.15;
   private minorRadius = 0.1;
+  private borderWidth = 0.01;
 
   private selectedCircle: Circle = {cx:  0.5, cy:  0.5, r: this.majorRadius}
 
@@ -56,7 +57,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.setupSVG()
+    this.setupSVGArea()
     this.autoCompleteArtists$ = this.artistStore.select(ArtistSelectors.GetAutoCompleteArtists)
     this.searchFormControl.valueChanges.pipe(
       tap((searchInput: any) => {
@@ -74,6 +75,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(){
+
     this.artistStore.select(ArtistSelectors.GetSelectedArtist).pipe(
       filter(a=>!!a),
       map(a=>a.images),
@@ -82,15 +84,17 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       map(url=>this.drawSelectedArtistImage(url)),
       takeUntil(this.unsubscribe)
     ).subscribe();
+
     this.artistStore.select(ArtistSelectors.GetRelatedArtists).pipe(
       filter(a=>!!a),
       map((relatedArtists: ArtistRobust[])=>{
-        let urls = relatedArtists.map((artist: ArtistRobust)=>head(artist.images).url)
-        this.drawNeighborCircles(this.neighborCircles, urls)
+        let urls = relatedArtists.map((artist: ArtistRobust)=>head(artist.images).url);
+        let artistNames = relatedArtists.map((artist: ArtistRobust)=>artist.name);
+        this.drawNeighborCircles(this.neighborCircles, urls,artistNames)
       }),
       takeUntil(this.unsubscribe)
     ).subscribe();
-    this.drawNeighborCircles(this.neighborCircles);
+
   }
 
   ngOnDestroy(){
@@ -98,7 +102,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.unsubscribe.complete();
   }
 
-  private setupSVG(){
+  private setupSVGArea(){
     let container = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     this.width = container.width - (this.margin * container.width * 2);
     this.height = container.height - (this.margin * container.height * 2);
@@ -111,9 +115,21 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
     this.createSvg();
   }
 
+  private createSvg(): void {
+    this.svg = d3.select("figure#nodes")
+      .append("svg")
+      .attr("width", this.width + (this.margin * 2))
+      .attr("height", this.height + (this.margin * 2))
+      .append("g")
+      .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+    this.defs = this.svg.append('defs')
+  }
+
+
   private drawSelectedArtistImage(url: string){
     this.drawClippedImage(this.scaleCircle(this.selectedCircle),url);
   }
+  
 
   private scaleCircle = (c: Circle): Circle => ({
     cx: this.xScale(c.cx),
@@ -128,7 +144,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       .attr("rx", c.r)
       .attr("ry", c.r)
       .attr('stroke','black')
-      .attr('stroke-width','10px')
+      .attr('stroke-width',`${this.xScale(this.borderWidth)}`)
       .attr("fill",'var(--color-medium-light)')
     this.defs.append('clipPath')
       .attr('id', `selected-circle-clip`)
@@ -147,26 +163,19 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       .attr('clip-path', `url(#selected-circle-clip)`)
   }
 
-  private createSvg(): void {
-    this.svg = d3.select("figure#nodes")
-      .append("svg")
-      .attr("width", this.width + (this.margin * 2))
-      .attr("height", this.height + (this.margin * 2))
-      .append("g")
-      .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
-    this.defs = this.svg.append('defs')
-  }
 
-  private drawNeighborCircles(circles: Circle[], urls: string[] = ['assets/circles-00.png']): void {
+  private drawNeighborCircles(circles: Circle[], urls: string[] ,artistNames: string[]): void {
     circles.map(this.scaleCircle).forEach((d,i)=>{
+  
       this.svg.append("ellipse")
         .attr("cx", d.cx)
         .attr("cy", d.cy)
         .attr("rx", d.r)
         .attr("ry", d.r)
+   
         .attr("fill",'var(--color-medium-light)')
         .attr('stroke','black')
-        .attr('stroke-width','20px')
+        .attr('stroke-width',`${this.xScale(this.borderWidth)}`)
       this.defs.append('clipPath')
         .attr('id', `circle-clip-${i}`)
         .call(s => {
@@ -175,6 +184,11 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
             .attr('cy', d.cy)
             .attr('r', d.r)
         })
+    
+      d3.select('body')
+        .append('div')
+        .attr('id', 'tooltip')
+        .attr('style', 'position: absolute; opacity: 0;');
       this.svg.append('image')
         .attr('xlink:href', urls[i % urls.length])
         .attr('x', d.cx - d.r)
@@ -182,8 +196,27 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
         .attr('width', d.r * 2 + 'px')
         .attr('height', d.r * 2 + 'px')
         .attr('clip-path', `url(#circle-clip-${i})`)
+
+        .on('mouseover', (d) => {
+            d3.select('#tooltip')
+              .transition()
+              .duration(200)
+              .style('opacity', 1)
+              .style('color', 'var(--color-light')
+              .style('background-color', 'var(--color-medium-dark')
+              .style('font-size', 'var(--m')
+              .text(artistNames[i])
+        })
+        .on('mouseout', () => d3.select('#tooltip').style('opacity', 0))
+        .on('mousemove', (event) => 
+          d3.select('#tooltip')
+            .style('left', `${event.pageX}px`)
+            .style('top', `${event.pageY}px`)
+            .style('transform', `translateX(-50%)`)
+        )
     })
   }
+
 
 
 }

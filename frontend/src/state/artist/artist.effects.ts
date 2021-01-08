@@ -59,10 +59,26 @@ export class ArtistEffects {
         );
     });
 
-    populateSelectedArtistSongs$ = createEffect((): any => {
+    populateSelectedArtistTracks$ = createEffect((): any => {
         return this.actions$.pipe(
             ofType(ArtistActions.SetSelectedArtistSuccess),
-            map(() => PlaylistActions.PopulateSelectedArtistSongs())
+            map(() => PlaylistActions.PopulateSelectedArtistTracks())
+        );
+    });
+
+    getRelatedArtists$ = createEffect((): any => {
+        return this.actions$.pipe(
+            ofType(ArtistActions.SetSelectedArtistSuccess),
+            withLatestFrom(
+                this.artistStore.select(ArtistSelectors.GetSelectedArtistId),
+                this.artistStore.select(ArtistSelectors.GetAccessToken)
+            ),
+            switchMap(([_,artistId,accessToken])=>{
+                return this.spotifyApiService.getRelatedArtists(artistId,accessToken).pipe(
+                    map((relatedArtists: ArtistRobust[]) => ArtistActions.GetRelatedArtistsSuccess({relatedArtists}))
+                )
+            }),
+            
         );
     });
 

@@ -25,6 +25,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
 
   public autoCompleteArtists$: Observable<Artist[]>;
   public selectedArtist$: Observable<ArtistRobust>;
+  public relatedArtists$: Observable<ArtistRobust[]>;
 
   private margin = 0.0;
 
@@ -55,7 +56,24 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.setupSVG()
     this.autoCompleteArtists$ = this.artistStore.select(ArtistSelectors.GetAutoCompleteArtists)
+    this.searchFormControl.valueChanges.pipe(
+      tap((searchInput: any) => {
+        if(!!searchInput?.id){
+          this.artistStore.dispatch(ArtistActions.SetSelectedArtist({artist: searchInput}));
+          this.searchFormControl.patchValue(searchInput.name, {emitEvent: false})
+        }else{
+          if(!!searchInput){
+            this.artistStore.dispatch(ArtistActions.SearchArtist({searchText: searchInput}));
+          }
+        }
+      }),
+      takeUntil(this.unsubscribe)
+    ).subscribe()
+  }
+
+  ngAfterViewInit(){
     this.artistStore.select(ArtistSelectors.GetSelectedArtist).pipe(
       filter(a=>!!a),
       map(a=>a.images),
@@ -64,22 +82,23 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       map(url=>this.drawSelectedArtistImage(url)),
       takeUntil(this.unsubscribe)
     ).subscribe();
-
-
-    this.searchFormControl.valueChanges.pipe(
-      tap((searchInput: any) => {
-        if(!!searchInput?.id){
-          this.artistStore.dispatch(ArtistActions.SetSelectedArtist({artist: searchInput}));
-          this.searchFormControl.patchValue(searchInput.name, {emitEvent: false})
-        }else{
-          this.artistStore.dispatch(ArtistActions.SearchArtist({searchText: searchInput}));
-        }
+    this.artistStore.select(ArtistSelectors.GetRelatedArtists).pipe(
+      filter(a=>!!a),
+      map((relatedArtists: ArtistRobust[])=>{
+        let urls = relatedArtists.map((artist: ArtistRobust)=>head(artist.images).url)
+        this.drawNeighborCircles(this.neighborCircles, urls)
       }),
       takeUntil(this.unsubscribe)
-    ).subscribe()
+    ).subscribe();
+    this.drawNeighborCircles(this.neighborCircles);
   }
 
-  ngAfterViewInit(){
+  ngOnDestroy(){
+    this.unsubscribe.next();
+    this.unsubscribe.complete();
+  }
+
+  private setupSVG(){
     let container = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
     this.width = container.width - (this.margin * container.width * 2);
     this.height = container.height - (this.margin * container.height * 2);
@@ -90,13 +109,6 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
       .domain([0,1])
       .range([this.height, 0]);
     this.createSvg();
-    
-    this.drawNeighborCircles(this.neighborCircles);
-  }
-
-  ngOnDestroy(){
-    this.unsubscribe.next();
-    this.unsubscribe.complete();
   }
 
   private drawSelectedArtistImage(url: string){
@@ -164,7 +176,7 @@ export class ArtistWebComponent implements OnInit,AfterViewInit, OnDestroy {
             .attr('r', d.r)
         })
       this.svg.append('image')
-        .attr('xlink:href', (_,i)=> urls[i % urls.length])
+        .attr('xlink:href', urls[i % urls.length])
         .attr('x', d.cx - d.r)
         .attr('y', d.cy - d.r)
         .attr('width', d.r * 2 + 'px')

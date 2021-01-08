@@ -1,16 +1,16 @@
 import {createAction, props} from '@ngrx/store';
 import { Track } from 'src/app/models/track.model';
 
-export const PopulateSelectedArtistSongs = createAction(
-    '[Playlist] Populate Selected Artist Songs',
+export const PopulateSelectedArtistTracks = createAction(
+    '[Playlist] Populate Selected Artist Tracks',
     // props<{backgroundSizeRatio: number}>()
 )
-export const PopulateSelectedArtistSongsSuccess = createAction(
-    '[Playlist] Populate Selected Artist Songs Success',
-    props<{tracks: Track[]}>()
+export const PopulateSelectedArtistTracksSuccess = createAction(
+    '[Playlist] Populate Selected Artist Tracks Success',
+    props<{tracks: any[]}>()
 )
 
-export const PopulateSelectedArtistSongsFailed = createAction(
-    '[Playlist] Populate Selected Artist Songs Failed',
+export const PopulateSelectedArtistTracksFailed = createAction(
+    '[Playlist] Populate Selected Artist Tracks Failed',
     // props<{backgroundSizeRatio: number}>()
 )

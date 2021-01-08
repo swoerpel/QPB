@@ -39,3 +39,15 @@ export const SetSelectedArtistFailed = createAction(
     props<{err: any}>()
 )
 
+export const GetRelatedArtists = createAction(
+    '[Spotify API] Get Related Artists',
+)
+export const GetRelatedArtistsSuccess = createAction(
+    '[Spotify API] Get Related Artists Success',
+    props<{relatedArtists: ArtistRobust[]}>()
+)
+export const GetRelatedArtistsFailed = createAction(
+    '[Spotify API] Get Related Artists Failed',
+    props<{err: any}>()
+)
+

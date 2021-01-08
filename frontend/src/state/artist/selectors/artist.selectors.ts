@@ -22,3 +22,8 @@ export const GetSelectedArtistId = createSelector(
     artistFeatureState,
     (state: ArtistState): string => state?.selectedArtist?.id
 )
+
+export const GetRelatedArtists = createSelector(
+    artistFeatureState,
+    (state: ArtistState): ArtistRobust[] => state?.relatedArtists.filter((_,i)=> i < 4)
+)

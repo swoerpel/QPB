@@ -6,12 +6,14 @@ export interface ArtistState {
     accessToken: string;
     autoCompleteArtists: Artist[];
     selectedArtist: ArtistRobust;
+    relatedArtists:ArtistRobust[];
     error: any;
 }
 
 const initialState: ArtistState = {
     accessToken: '',
     autoCompleteArtists: [],
+    relatedArtists:[],
     selectedArtist: null,
     error: null,
 }
@@ -59,4 +61,22 @@ export const artistReducer = createReducer<ArtistState>(
             error: action.err,
         }
     }),
+    on(ArtistActions.GetRelatedArtists, (state, action): ArtistState => {
+        return {
+            ...state,
+        }
+    }),
+    on(ArtistActions.GetRelatedArtistsSuccess, (state, action): ArtistState => {
+        return {
+            ...state,
+            relatedArtists: action.relatedArtists,
+        }
+    }),
+    on(ArtistActions.GetRelatedArtistsFailed, (state, action): ArtistState => {
+        return {
+            ...state,
+            error: action.err,
+        }
+    }),
+    
 );

@@ -24,14 +24,14 @@ export class PlaylistEffects {
 
     populateSelectedArtistSongs$ = createEffect((): any => {
         return this.actions$.pipe(
-            ofType(PlaylistActions.PopulateSelectedArtistSongs),
+            ofType(PlaylistActions.PopulateSelectedArtistTracks),
             withLatestFrom(
                 this.artistStore.select(ArtistSelectors.GetAccessToken),
                 this.artistStore.select(ArtistSelectors.GetSelectedArtistId),
             ),
             switchMap(([_,accessToken,artistId]) => {
                 return this.spotifyApiService.getTracksByArtist(artistId,accessToken).pipe(
-                    map((tracks: Track[]) => PlaylistActions.PopulateSelectedArtistSongsSuccess({tracks})),
+                    map((tracks: Track[]) => PlaylistActions.PopulateSelectedArtistTracksSuccess({tracks})),
                 )
             })  
         )   

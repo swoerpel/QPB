@@ -64,17 +64,7 @@ export class SpotifyApiService {
       headers: new HttpHeaders({'Authorization': accessToken}),
     };
     return this.http.get(url,httpOptions).pipe(
-      map((artist: any)=>{
-        let artistRobust: ArtistRobust = {
-          id: artist.id,
-          name: artist.name,
-          popularity: artist.popularity,
-          followers: artist.followers.total,
-          images: [...artist.images],
-          genres: [...artist.genres],
-        };
-        return artistRobust;
-      })
+      map((artist: any)=>this.toRobustArtist(artist)),
     );
   }
   
@@ -98,5 +88,32 @@ export class SpotifyApiService {
       }),
       catchError((err)=> {return err;})
     );
+  }
+
+  public getRelatedArtists(
+    artistId: string, 
+    accessToken: string, 
+  ): Observable<ArtistRobust[]> {
+    const url = `${this.artist_base_url}${artistId}/related-artists`
+    let httpOptions = {
+      headers: new HttpHeaders({'Authorization': accessToken}),
+    };
+    return this.http.get(url,httpOptions).pipe(
+      map((res:any) => res.artists),
+      map((artists: any[]):any => artists.map((a:any) => this.toRobustArtist(a))),
+      catchError((err)=> {return err;})
+    );
+  }
+
+
+  private toRobustArtist(artist: any): ArtistRobust{
+    return {
+      id: artist.id,
+      name: artist.name,
+      popularity: artist.popularity,
+      followers: artist.followers.total,
+      images: [...artist.images],
+      genres: [...artist.genres],
+    };
   }
 }

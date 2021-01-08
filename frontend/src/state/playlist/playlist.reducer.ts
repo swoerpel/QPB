@@ -12,10 +12,10 @@ const initialState: PlaylistState = {
 
 export const playlistReducer = createReducer<PlaylistState>(
     initialState,
-    on(PlaylistActions.PopulateSelectedArtistSongsSuccess, (state,action): PlaylistState => {
+    on(PlaylistActions.PopulateSelectedArtistTracksSuccess, (state,action): PlaylistState => {
         return {
             ...state,
-            artistTracks: action.tracks,
+            artistTracks: action?.tracks,
         }
     }),
 );

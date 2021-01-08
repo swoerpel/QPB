@@ -5,7 +5,7 @@
            [matAutocomplete]="auto"
            class="search-input">
     <mat-autocomplete #auto="matAutocomplete">
-    <mat-option *ngFor="let artist of autoCompleteArtists$ | async" [value]="artist">
+    <mat-option *ngFor="let artist of (autoCompleteArtists$ | async)" [value]="artist">
         {{artist.name}}
     </mat-option>
     </mat-autocomplete>

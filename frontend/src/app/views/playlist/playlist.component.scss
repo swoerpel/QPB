@@ -16,12 +16,12 @@
     color: var(--color-light);
     
     &__artist{
-        flex: 2;
-        overflow-y: scroll;
+        flex: 1;
+        overflow-y: auto;
     }
 
     &__user{
-        flex: 3;
+        flex: 1;
         border-top: 1px solid var(--color-medium-light);
     }
 

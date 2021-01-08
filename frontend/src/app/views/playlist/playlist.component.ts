@@ -23,10 +23,8 @@ export class PlaylistComponent implements OnInit {
   ngOnInit(): void {
     this.selectedArtistTracks$ = this.playlistStore.select(PlaylistSelectors.GetSelectedArtistTracks).pipe(
       map((tracks: Track[])=>{
-        console.log("tracks.length")
         return tracks.filter((_,i)=> i<8)
       }),
-      tap((tracks)=>console.log(tracks.length))
     )
   }
 

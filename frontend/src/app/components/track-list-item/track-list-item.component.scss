@@ -15,8 +15,10 @@
         flex: 1;
     }
     &__name{
+
         flex: 4;
         justify-content: flex-start;
+        margin:0 var(--xs);
         margin-left: var(--s);
     }
     &__duration{

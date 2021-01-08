@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewContainerRef } from '@angular/core';
 import * as d3 from 'd3';
 import { Point, Rect } from 'src/app/models/geometry.model';
 
@@ -7,7 +7,7 @@ import { Point, Rect } from 'src/app/models/geometry.model';
   templateUrl: './popularity-indicator.component.html',
   styleUrls: ['./popularity-indicator.component.scss']
 })
-export class PopularityIndicatorComponent implements OnInit, AfterViewInit {
+export class PopularityIndicatorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() popularity: number = 0;
 
@@ -21,14 +21,15 @@ export class PopularityIndicatorComponent implements OnInit, AfterViewInit {
   private width;
   private height;
 
-  private corner: Point;
 
   constructor(
     private viewContainerRef: ViewContainerRef,
   ) { }
 
   ngOnInit(): void { }
-
+  ngOnDestroy(){
+    // d3.selectAll('rect').remove()
+  }
   ngAfterViewInit(){
     this.setupSvg();
     this.drawBars();
@@ -36,19 +37,15 @@ export class PopularityIndicatorComponent implements OnInit, AfterViewInit {
 
   private setupSvg(){
     let container = this.viewContainerRef.element.nativeElement.getBoundingClientRect();
-    this.corner = {
-      x: container.x,
-      y: container.y,
-    }
     this.width = container.width - (this.margin * container.width * 2);
     this.height = container.height - (this.margin * container.height * 2);
     this.svg = d3.select("figure#indicator")
+      .enter()
       .append("svg")
-      .attr('x',this.corner.x)
-      .attr('y',this.corner.y)
+      .attr('x',container.x)
+      .attr('y',container.y)
       .attr("width", this.width + (this.margin * 2))
       .attr("height", this.height + (this.margin * 2))
-      .append("g")
       .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
   }
 
@@ -60,13 +57,14 @@ export class PopularityIndicatorComponent implements OnInit, AfterViewInit {
       width: this.barWidth,
       height: this.barHeight,
     }))
+    let fillIndex = Math.floor((this.popularity / 100) * this.barCount)
     bars.forEach((b:Rect,i)=>{
         this.svg.append("rect")
-        .attr("x", `${b.x}px`)
-        .attr("y", `${b.y + (this.height - b.height) / 2}px`)
-        .attr("width", `${b.width}px`)
-        .attr("height", `${b.height}px`)
-        .attr("fill",'white') 
+          .attr("x", `${b.x}px`)
+          .attr("y", `${b.y + (this.height - b.height) / 2}px`)
+          .attr("width", `${b.width}px`)
+          .attr("height", `${b.height}px`)
+          .attr("fill",i < fillIndex ? 'var(--color-light)':'var(--color-medium)') 
     })
   }
 
